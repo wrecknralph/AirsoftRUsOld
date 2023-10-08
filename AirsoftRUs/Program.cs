@@ -1,4 +1,15 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using AirsoftRUs.Data;
+using AirsoftRUs.Areas.Identity.Data;
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("AirsoftRUsContextConnection") ?? throw new InvalidOperationException("Connection string 'AirsoftRUsContextConnection' not found.");
+
+builder.Services.AddDbContext<AirsoftRUsContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddDefaultIdentity<AirsoftRUsUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<AirsoftRUsContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -17,11 +28,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();;
 
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
 
 app.Run();
